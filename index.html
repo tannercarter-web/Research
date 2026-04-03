@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hornbeck Offshore Services - Visual Analysis</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0a0f1a;
+    color: #c8d6e5;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+    margin: 20px auto 0;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    color: #e2e8f0;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #64748b;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+  }
+
+  .card.full {
+    grid-column: 1 / -1;
+  }
+
+  .card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #0ea5e9;
+    margin-bottom: 20px;
+  }
+
+  .card-label {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+
+  .card-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  /* Fleet Composition Chart */
+  .fleet-bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+  }
+
+  .fleet-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fleet-label {
+    width: 160px;
+    font-size: 13px;
+    color: #94a3b8;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .fleet-bar-track {
+    flex: 1;
+    height: 28px;
+    background: #1e293b;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .fleet-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 700;
+    transition: width 1s ease;
+  }
+
+  /* Revenue Mix Donut */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 10px;
+  }
+
+  .donut-svg {
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-text {
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  .legend-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #e2e8f0;
+    font-weight: 700;
+    margin-left: auto;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+    margin-top: 10px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #0ea5e9, #06b6d4, #0ea5e9);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 10px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0ea5e9;
+    border: 2px solid #0a0f1a;
+  }
+
+  .timeline-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #0ea5e9;
+    margin-bottom: 2px;
+  }
+
+  .timeline-event {
+    font-size: 13px;
+    color: #c8d6e5;
+    line-height: 1.5;
+  }
+
+  /* Competitive landscape */
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .comp-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: #0ea5e9;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .comp-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #111827;
+    color: #94a3b8;
+  }
+
+  .comp-table tr:hover td {
+    background: rgba(14, 165, 233, 0.04);
+    color: #c8d6e5;
+  }
+
+  .highlight {
+    color: #e2e8f0 !important;
+    font-weight: 500;
+  }
+
+  /* Vessel specs */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .spec-box {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .spec-box-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #06b6d4;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .spec-box-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 2px;
+  }
+
+  .spec-box-desc {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  /* Risk matrix */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .risk-card {
+    background: #0f172a;
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    padding: 14px 16px;
+  }
+
+  .risk-card.high { border-left-color: #ef4444; }
+  .risk-card.medium { border-left-color: #f59e0b; }
+  .risk-card.low { border-left-color: #22c55e; }
+
+  .risk-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #e2e8f0;
+    margin-bottom: 4px;
+  }
+
+  .risk-desc {
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .risk-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  .risk-tag.high { color: #ef4444; }
+  .risk-tag.medium { color: #f59e0b; }
+  .risk-tag.low { color: #22c55e; }
+
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .spec-grid { grid-template-columns: 1fr; }
+    .risk-grid { grid-template-columns: 1fr; }
+    .donut-container { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>HORNBECK OFFSHORE SERVICES</h1>
+    <div class="subtitle">Business Understanding - Visual Analysis | April 2026</div>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Total Fleet</div>
+      <div class="card-value">74</div>
+      <div class="card-label">vessels (59 OSVs + 15 MPSVs incl. 2 under construction)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">High-Spec Concentration</div>
+      <div class="card-value">~85%</div>
+      <div class="card-label">of fleet is high-spec or ultra high-spec by DWT</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Jones Act OSV Market Share</div>
+      <div class="card-value">~26%</div>
+      <div class="card-label">of U.S. high/ultra high-spec Jones Act OSV supply</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Navy Contract Value</div>
+      <div class="card-value">$292M</div>
+      <div class="card-label">sole-source T-AGSE O&M contract (March 2026)</div>
+    </div>
+  </div>
+
+  <!-- Fleet Composition -->
+  <div class="grid">
+    <div class="card full">
+      <div class="card-title">Fleet Composition by Vessel Class</div>
+      <div class="fleet-bar-chart">
+        <div class="fleet-row">
+          <div class="fleet-label">280-class OSVs</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 60%; background: linear-gradient(90deg, #0ea5e9, #0284c7);">~35</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label">240-class OSVs</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 25%; background: linear-gradient(90deg, #06b6d4, #0891b2);">~15</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label">300-class OSVs</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 15%; background: linear-gradient(90deg, #14b8a6, #0d9488);">~9</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label">MPSVs (Active)</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 22%; background: linear-gradient(90deg, #8b5cf6, #7c3aed);">13</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label">MPSV Newbuilds</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 4%; background: linear-gradient(90deg, #f59e0b, #d97706);">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revenue Mix + Donut -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Revenue Mix (TTM Sep 2025)</div>
+      <div class="donut-container">
+        <svg class="donut-svg" viewBox="0 0 180 180">
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#1e293b" stroke-width="20"/>
+          <!-- Non-drilling: 68% = 245 degrees -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#0ea5e9" stroke-width="20"
+            stroke-dasharray="297.4 142" stroke-dashoffset="110"
+            transform="rotate(-90 90 90)"/>
+          <!-- Drilling: 32% = 115 degrees -->
+          <circle cx="90" cy="90" r="70" fill="none" stroke="#f59e0b" stroke-width="20"
+            stroke-dasharray="140.7 298.7" stroke-dashoffset="-187.4"
+            transform="rotate(-90 90 90)"/>
+          <text x="90" y="85" text-anchor="middle" font-family="Space Mono" font-size="20" font-weight="700" fill="#e2e8f0">68%</text>
+          <text x="90" y="102" text-anchor="middle" font-family="DM Sans" font-size="10" fill="#64748b">Non-Drilling</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #0ea5e9;"></div>
+            <span class="legend-text">Oilfield Specialty & Non-Oilfield</span>
+            <span class="legend-pct">68%</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #f59e0b;"></div>
+            <span class="legend-text">Drilling Support</span>
+            <span class="legend-pct">32%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">End-Market Diversification</div>
+      <div class="fleet-bar-chart" style="margin-top: 20px;">
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 130px;">IRM / Subsea</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 35%; background: #0ea5e9;">Large</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 130px;">Drilling Support</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 32%; background: #f59e0b;">Moderate</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 130px;">Flotel / Accom.</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 15%; background: #8b5cf6;">Growing</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 130px;">Military / Gov</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 12%; background: #22c55e;">Stable</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 130px;">Offshore Wind</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 6%; background: #06b6d4;">New</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MPSV Newbuild Specs -->
+  <div class="grid">
+    <div class="card full">
+      <div class="card-title">400-Class MPSV Newbuilds - Key Specifications (Delivery 2027)</div>
+      <div class="spec-grid">
+        <div class="spec-box">
+          <div class="spec-box-title">Primary Crane</div>
+          <div class="spec-box-value">250 MT</div>
+          <div class="spec-box-desc">Active heave compensation, 4,000m wire</div>
+        </div>
+        <div class="spec-box">
+          <div class="spec-box-title">Secondary Crane</div>
+          <div class="spec-box-value">100 MT</div>
+          <div class="spec-box-desc">Active heave compensation, 4,000m wire</div>
+        </div>
+        <div class="spec-box">
+          <div class="spec-box-title">Accommodation</div>
+          <div class="spec-box-value">102</div>
+          <div class="spec-box-desc">Personnel berths with full amenities</div>
+        </div>
+        <div class="spec-box">
+          <div class="spec-box-title">Remaining Capex</div>
+          <div class="spec-box-value">~$53M</div>
+          <div class="spec-box-desc">Total for both vessels; surety covers excess</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitive Landscape Table -->
+  <div class="grid">
+    <div class="card full">
+      <div class="card-title">Competitive Landscape - Jones Act & Americas OSV/MPSV Market</div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Competitor</th>
+            <th>Ownership</th>
+            <th>Primary Market</th>
+            <th>Fleet Focus</th>
+            <th>Key Strength</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td class="highlight">Hornbeck Offshore</td>
+            <td>Private (IPO pending)</td>
+            <td>U.S. GoA, Mexico, Brazil</td>
+            <td>High/Ultra-spec OSV + MPSV</td>
+            <td>Highest-spec Jones Act fleet, in-house engineering</td>
+          </tr>
+          <tr>
+            <td>Edison Chouest Offshore</td>
+            <td>Private</td>
+            <td>U.S. GoA, Global</td>
+            <td>Full-range OSV + Construction</td>
+            <td>Largest Jones Act fleet, vertically integrated w/ shipyards</td>
+          </tr>
+          <tr>
+            <td>Tidewater (TDW)</td>
+            <td>NYSE Listed</td>
+            <td>Global (200+ vessels)</td>
+            <td>Diversified OSV fleet</td>
+            <td>Scale, global diversification, largest public OSV co.</td>
+          </tr>
+          <tr>
+            <td>SEACOR Marine (SMHI)</td>
+            <td>NYSE Listed</td>
+            <td>U.S. GoA, Intl.</td>
+            <td>Mixed (OSV, FSV, Liftboat)</td>
+            <td>Fleet diversity, liftboat niche</td>
+          </tr>
+          <tr>
+            <td>Harvey Gulf</td>
+            <td>Private</td>
+            <td>U.S. GoA</td>
+            <td>High-spec OSV, LNG-powered</td>
+            <td>First LNG-fueled OSVs, environmental focus</td>
+          </tr>
+          <tr>
+            <td>Otto Candies</td>
+            <td>Private</td>
+            <td>U.S. GoA</td>
+            <td>OSV</td>
+            <td>Long operating history, family-owned stability</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Company Timeline -->
+  <div class="grid">
+    <div class="card full">
+      <div class="card-title">Corporate Timeline - Key Events</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">1997</div>
+          <div class="timeline-event">Todd Hornbeck co-founds Hornbeck Offshore. First newbuild program of proprietary deepwater OSVs.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2004</div>
+          <div class="timeline-event">IPO on NYSE under ticker HOS. Becomes only publicly traded company focused on deepwater OSVs in the GoA.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2006-2014</div>
+          <div class="timeline-event">Expansion through five newbuild programs. Fleet grows to 60+ vessels. Peak deepwater boom period.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2014-2019</div>
+          <div class="timeline-event">Oil price collapse from $100+ to sub-$30. Prolonged downturn, vessel stacking, NYSE delisting (Dec 2019).</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">May 2020</div>
+          <div class="timeline-event">Chapter 11 bankruptcy filing. $1.2B+ in debt restructured.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Sep 2020</div>
+          <div class="timeline-event">Emerges from bankruptcy as private entity. $100M new equity from Ares, Whitebox, Highbridge.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Jan 2022 - Feb 2023</div>
+          <div class="timeline-event">Acquires 16 high-spec OSVs from Edison Chouest in two transactions. Fleet rebuild accelerates.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Oct 2023</div>
+          <div class="timeline-event">Settles MPSV construction dispute. Two 400-class newbuilds to be completed by Eastern Shipbuilding.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Dec 2023</div>
+          <div class="timeline-event">Files S-1 for IPO. Plans to relist on NYSE under "HOS."</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Nov 2025</div>
+          <div class="timeline-event">HOS Rocinante (first U.S.-flagged SOV) delivered. Placed on offshore wind contract immediately.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Jan 2026</div>
+          <div class="timeline-event">Strategic partnership with Saronic Technologies for autonomous vessel technology.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">Mar 2026</div>
+          <div class="timeline-event">$291.8M Navy T-AGSE contract renewed (sole-source). Base period + options through Aug 2031.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Matrix -->
+  <div class="grid">
+    <div class="card full">
+      <div class="card-title">Key Risks - Probability / Impact Assessment</div>
+      <div class="risk-grid">
+        <div class="risk-card high">
+          <div class="risk-name">Oil Price Collapse</div>
+          <div class="risk-desc">Sustained oil below $55/bbl cuts E&P budgets, reduces vessel demand</div>
+          <div class="risk-tag high">Moderate prob / High impact</div>
+        </div>
+        <div class="risk-card medium">
+          <div class="risk-name">MPSV Newbuild Delays</div>
+          <div class="risk-desc">Further construction delays defer revenue growth trigger</div>
+          <div class="risk-tag medium">Moderate prob / Moderate impact</div>
+        </div>
+        <div class="risk-card high">
+          <div class="risk-name">Jones Act Repeal / Weakening</div>
+          <div class="risk-desc">Opens U.S. waters to lower-cost foreign vessels</div>
+          <div class="risk-tag high">Low prob / Catastrophic impact</div>
+        </div>
+        <div class="risk-card medium">
+          <div class="risk-name">PEMEX Payment Risk</div>
+          <div class="risk-desc">Delayed or defaulted payments from Mexican operations</div>
+          <div class="risk-tag medium">Moderate prob / Moderate impact</div>
+        </div>
+        <div class="risk-card medium">
+          <div class="risk-name">Crew Shortages</div>
+          <div class="risk-desc">U.S.-citizen mariner shortage limits fleet activation</div>
+          <div class="risk-tag medium">High prob / Moderate impact</div>
+        </div>
+        <div class="risk-card low">
+          <div class="risk-name">Offshore Wind Policy Reversal</div>
+          <div class="risk-desc">Federal policy changes slow U.S. wind development</div>
+          <div class="risk-tag low">Moderate prob / Low-mod impact</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Geographic Operations -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Geographic Presence</div>
+      <div class="fleet-bar-chart" style="margin-top: 10px;">
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">U.S. GoA</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 65%; background: #0ea5e9;">Primary</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">Mexico</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 18%; background: #8b5cf6;">Established</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">Brazil</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 12%; background: #06b6d4;">Growing</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">U.S. East Coast</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 5%; background: #22c55e;">New</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Cabotage Protection by Market</div>
+      <div class="fleet-bar-chart" style="margin-top: 10px;">
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">U.S. (Jones Act)</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 100%; background: linear-gradient(90deg, #22c55e, #16a34a);">Strongest</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">Brazil</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 75%; background: linear-gradient(90deg, #22c55e, #16a34a);">Strong</div>
+          </div>
+        </div>
+        <div class="fleet-row">
+          <div class="fleet-label" style="width: 100px;">Mexico</div>
+          <div class="fleet-bar-track">
+            <div class="fleet-bar-fill" style="width: 60%; background: linear-gradient(90deg, #f59e0b, #d97706);">Moderate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #1e293b;">
+    <div style="font-family: 'Space Mono', monospace; font-size: 11px; color: #475569;">
+      Sources: Hornbeck Offshore S-1/A (Nov 2025), SEC Filings, Press Releases, Industry Publications | Report Date: April 2, 2026
+    </div>
+    <div style="font-family: 'Space Mono', monospace; font-size: 10px; color: #334155; margin-top: 6px;">
+      No valuation, no financial projections, no investment recommendation
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
